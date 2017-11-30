@@ -2,6 +2,7 @@ import unittest
 
 
 class Column:
+    """The column object of dancing link"""
     def __init__(self):
         self.left = None
         self.right = None
@@ -13,6 +14,7 @@ class Column:
 
 
 class Data:
+    """The data object of dancing link"""
     def __init__(self):
         self.left = None
         self.right = None
@@ -23,33 +25,66 @@ class Data:
 
 
 class DancingLinkSolver:
+    """A implementation of algorithm X using dancing link as the data structure"""
+
     def __init__(self, header):
+        """ initialize the dancing link solver with the header of dancing link
+        :param header: the header of the dancing link
+        :type header: Column
+        """
         self.header = header
+
+        # initialize a iterator for transversing dancing link in four directions
         self.iterator = DancingLinkIterator()
+
+        # initialize a dictionary to save solution rows
         self.solution_dictionary = {}
 
     def search(self, k=0):
+        """A recursive procedure to search the solution that is invoked with k = 0
+        :param k: the index of backtracking level
+        """
+
+        # terminate and return when all column are covered
         if self.header.right is self.header:
             return
         selected_column = self.choose_column()
         self.cover_column(selected_column)
         for r in self.iterator.down(selected_column):
+
+            # save the solution of current backtracking level to solution dictionary
             self.solution_dictionary[str(k)] = r
+
+            # cover all column that conflicts with the selected column
             for j in self.iterator.right(r):
                 self.cover_column(j.column)
+
+            #  recursively search solutions
             self.search(k + 1)
+
+            # backtrack
             r = self.solution_dictionary[str(k)]
             selected_column = r.column
+
+            # uncover columns
             for j in self.iterator.left(r):
                 self.uncover_column(j.column)
         self.uncover_column(selected_column)
         return
 
     def choose_column(self):
-        """minimize the branching factor by choosing the least size among columns"""
+        """minimize the branching factor by choosing the column with the least size
+
+        :return the reference of chosen column object
+        """
         return self.find_least_ones_column()
 
     def find_least_ones_column(self):
+        """ Find the column with the least size
+        :return selected_column: the reference of the selected column
+        :rtype selected_column: Column
+        """
+        # set s to infinity
         s = float('inf')
         selected_column = None
         for column in self.iterator.right(self.header):
@@ -59,15 +94,23 @@ class DancingLinkSolver:
         return selected_column
 
     def cover_column(self, selected_column):
-        """cover a column"""
+        """ cover a column
+        :param selected_column: the reference of the selected column
+        """
         self.disconnect_column_object(selected_column)
         self.disconnect_data_object(selected_column)
 
     def disconnect_column_object(self, selected_column):
+        """ cover the selected column object from the linked list of columns
+        :param selected_column: the reference of the selected column
+        """
         selected_column.right.left = selected_column.left
         selected_column.left.right = selected_column.right
 
     def disconnect_data_object(self, selected_column):
+        """ cover the data objects of selected column
+        :param selected_column: the reference of the selected column
+        """
         for i in self.iterator.down(selected_column):
             for j in self.iterator.right(i):
                 j.down.up = j.up
@@ -75,10 +118,12 @@ class DancingLinkSolver:
                 j.column.size -= 1
 
     def uncover_column(self, selected_column):
+        """ uncover the selected column """
         self.connect_data_object(selected_column)
         self.connect_column_object(selected_column)
 
     def connect_data_object(self, selected_column):
+        """ uncover the data objects of the selected column"""
         for i in self.iterator.up(selected_column):
             for j in self.iterator.left(i):
                 j.column.size = j.column.size + 1  # why j.column.size and j.size
@@ -86,15 +131,18 @@ class DancingLinkSolver:
                 j.up.down = j
 
     def connect_column_object(self, selected_column):
+        """ uncover the selected column object"""
         selected_column.right.left = selected_column
         selected_column.left.right = selected_column
 
     def print_solution(self):
+        """ print the solution"""
         for key, data_object in self.solution_dictionary.items():
             print('In the level: ', key, 'the result is:', data_object.row)
 
 
 class DancingLinkIterator:
+    """ A collection of iterator for dancing link"""
     def down(self, start_object):
         current_object = start_object.down
         while current_object is not start_object:
@@ -121,29 +169,47 @@ class DancingLinkIterator:
 
 
 class DancingLinkConstructor:
+    """ Constructing the dancing link"""
     def __init__(self, column_headers, problem_matrix):
+        """ initialization
+        :param column_headers: the headers of columns
+        :param problem_matrix: the subset of column headers represented by a matrix with 1 and 0
+        """
         self.column_headers = column_headers
         self.problem_matrix = problem_matrix
         self.header = Column()
+
+        # a auxiliary dictionary that saves the reference to the last data object of corresponding column
         self.column_rear_objects_dictionary = {}
 
     def construct(self):
+        """ Construct a dancing link
+        :return the header column object of the dancing link
+        """
         self.construct_columns()
         self.construct_column_rear_objects_dictionary()
         self.construct_rows()
         return self.header
 
     def construct_columns(self):
+        """ Construct columns of the dancing link row by row"""
+
+        # the reference to the previous data object within the row under operation
         previous_column_object = None
+
+        # # the reference to the last data object within the row under operation
         rear_column_object = None
 
         def connect_first_column_object_to_header():
+            """ Connect the first column object when the right of header is None"""
             nonlocal previous_column_object
             current_column_object = Column()
             current_column_object.name = column_name
             current_column_object.left = self.header
             current_column_object.column = current_column_object
             self.header.right = current_column_object
+
+            # update the reference of previous column object
             previous_column_object = current_column_object
 
         def connect_new_column_object():
