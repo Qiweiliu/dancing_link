@@ -3,6 +3,7 @@ import unittest
 
 class Column:
     """The column object of dancing link"""
+
     def __init__(self):
         self.left = None
         self.right = None
@@ -15,6 +16,7 @@ class Column:
 
 class Data:
     """The data object of dancing link"""
+
     def __init__(self):
         self.left = None
         self.right = None
@@ -59,7 +61,7 @@ class DancingLinkSolver:
             for j in self.iterator.right(r):
                 self.cover_column(j.column)
 
-            #  recursively search solutions
+            # recursively search solutions
             self.search(k + 1)
 
             # backtrack
@@ -143,6 +145,7 @@ class DancingLinkSolver:
 
 class DancingLinkIterator:
     """ A collection of iterator for dancing link"""
+
     def down(self, start_object):
         current_object = start_object.down
         while current_object is not start_object:
@@ -170,6 +173,7 @@ class DancingLinkIterator:
 
 class DancingLinkConstructor:
     """ Constructing the dancing link"""
+
     def __init__(self, column_headers, problem_matrix):
         """ initialization
         :param column_headers: the headers of columns
@@ -180,25 +184,25 @@ class DancingLinkConstructor:
         self.header = Column()
 
         # a auxiliary dictionary that saves the reference to the last data object of corresponding column
-        self.column_rear_objects_dictionary = {}
+        self.column_tail_objects_dictionary = {}
 
     def construct(self):
         """ Construct a dancing link
         :return the header column object of the dancing link
         """
         self.construct_columns()
-        self.construct_column_rear_objects_dictionary()
+        self.construct_column_tail_objects_dictionary()
         self.construct_rows()
         return self.header
 
     def construct_columns(self):
-        """ Construct columns of the dancing link row by row"""
+        """ Construct columns objects of the dancing link from left to right"""
 
-        # the reference to the previous data object within the row under operation
+        # the reference to the previous column object
         previous_column_object = None
 
-        # # the reference to the last data object within the row under operation
-        rear_column_object = None
+        # # the reference to the last column object
+        tail_column_object = None
 
         def connect_first_column_object_to_header():
             """ Connect the first column object when the right of header is None"""
@@ -209,55 +213,63 @@ class DancingLinkConstructor:
             current_column_object.column = current_column_object
             self.header.right = current_column_object
 
-            # update the reference of previous column object
+            # update the reference to previous column object
             previous_column_object = current_column_object
 
         def connect_new_column_object():
+            """ add a new column object"""
             nonlocal previous_column_object
-            nonlocal rear_column_object
+            nonlocal tail_column_object
             current_column_object = Column()
             current_column_object.name = column_name
             current_column_object.column = current_column_object
             previous_column_object.right = current_column_object
             current_column_object.left = previous_column_object
-            previous_column_object = current_column_object
-            rear_column_object = current_column_object
 
-        def connect_column_head_rear():
-            rear_column_object.right = self.header
-            self.header.left = rear_column_object
+            # update the references to the previous column object, and the last column object at rightmost
+            previous_column_object = current_column_object
+            tail_column_object = current_column_object
+
+        def connect_column_head_tail():
+            """connect the last column object to the header column object so that forming a circular linked list"""
+            tail_column_object.right = self.header
+            self.header.left = tail_column_object
 
         for column_name in self.column_headers:
             if self.header.right is None:
                 connect_first_column_object_to_header()
             else:
                 connect_new_column_object()
-        connect_column_head_rear()
+        connect_column_head_tail()
 
     def construct_rows(self):
+        """construct data objects row by row"""
+
+        # initialize a list save the size of each column
         column_sizes = [0] * len(self.column_headers)
         row_index = 0
 
         def set_up_new_data_object():
             nonlocal data_object
-            # the below part is for creating connection between nearest above object
+            # create a data object
             data_object = Data()
 
             # track column size
             column_sizes[column_index] += 1
 
+            # set row number
             data_object.row = row_index
 
-            column_rear_object = self.column_rear_objects_dictionary[str(column_index)]
+            column_tail_object = self.column_tail_objects_dictionary[str(column_index)]
 
             # set column field
-            data_object.column = column_rear_object.column
+            data_object.column = column_tail_object.column
 
-            # create up-down connection
-            self.connect_up_down(data_object, column_rear_object)
+            # create up-down connection to the last data object of the selected column
+            self.connect_up_down(data_object, column_tail_object)
 
-            # update the last element of current column
-            self.column_rear_objects_dictionary[str(column_index)] = data_object
+            # update the reference to last data object of current column
+            self.column_tail_objects_dictionary[str(column_index)] = data_object
 
         def track_first_data_object():
             nonlocal first_in_row
@@ -265,10 +277,11 @@ class DancingLinkConstructor:
                 first_in_row = data_object
 
         def track_last_data_object():
-            nonlocal rear_in_row
-            rear_in_row = data_object
+            nonlocal tail_in_row
+            tail_in_row = data_object
 
         def connect_previous_left_data_object():
+            """ connect the connection between current data object and the left data object"""
             nonlocal previous_left_object
             if previous_left_object is None:
                 previous_left_object = data_object
@@ -279,7 +292,7 @@ class DancingLinkConstructor:
         for row in self.problem_matrix:
             column_index = 0
             first_in_row = None
-            rear_in_row = None
+            tail_in_row = None
             previous_left_object = None
             data_object = None
 
@@ -291,35 +304,51 @@ class DancingLinkConstructor:
                     connect_previous_left_data_object()
                 column_index += 1
             row_index += 1
-            self.connect_left_right(rear_in_row, first_in_row)
+            self.connect_left_right(tail_in_row, first_in_row)
 
+        # update column sizes after all data objects were created
         self.update_column_sizes(column_sizes)
-        self.connect_vertical_rear_head()
+
+        # connect the last data object to its corresponding column object forming a circular linked list
+        self.connect_column_tail_head()
 
     def update_column_sizes(self, column_sizes):
+        """ updates column sizes
+        :param column_sizes: List contains the sizes of columns
+        """
         for index, size in enumerate(column_sizes):
-            self.column_rear_objects_dictionary[str(index)].column.size = size
+            self.column_tail_objects_dictionary[str(index)].column.size = size
 
-    def connect_vertical_rear_head(self):
-        for key, data_object in self.column_rear_objects_dictionary.items():
+    def connect_column_tail_head(self):
+        """ connect the tail data object to its corresponding column object"""
+        for key, data_object in self.column_tail_objects_dictionary.items():
             data_object.down = data_object.column
             data_object.column.up = data_object
 
     def connect_up_down(self, down_object, up_object):
+        """create double connection between up and down
+        :param down_object: The down object
+        :param up_object: The up object
+        """
         down_object.up = up_object
         up_object.down = down_object
-        pass
+
 
     def connect_left_right(self, left_object, right_object):
+        """create double connection between left and right
+        :param: left_object: The left object
+        :param: right_object: The right object
+        """
         left_object.right = right_object
         right_object.left = left_object
-        pass
 
-    def construct_column_rear_objects_dictionary(self):
+
+    def construct_column_tail_objects_dictionary(self):
+        """Construct a dictionary that records the reference of the tail object of the corresponding column. """
         current_column = self.header.right
         current_column_index = 0
         while current_column is not self.header:
-            self.column_rear_objects_dictionary[str(current_column_index)] = current_column
+            self.column_tail_objects_dictionary[str(current_column_index)] = current_column
             current_column_index += 1
             current_column = current_column.right
 
