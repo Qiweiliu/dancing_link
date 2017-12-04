@@ -406,3 +406,48 @@ class TestDancingLinkSolver(unittest.TestCase):
 
         for i in generator.down(column_a):
             print(i.name)
+
+
+class TestCollumn(unittest.TestCase):
+    def test_init_(self):
+        collumn = Column()
+        self.assertEqual([collumn.left,collumn.right,collumn.up,collumn.down,
+                          collumn.column,collumn.size,collumn.name],[None]*7)
+
+class TestData(unittest.TestCase):
+    def test_init_(self):
+        data = Data()
+        self.assertEqual([data.left,data.down,data.left,data.right,data.column
+                          ,data.row],[None]*6)
+
+class TestDancingLinkConstructor(unittest.TestCase):
+    dl = None
+
+    def setUp(self):
+        column_headers = ['a', 'b', 'c', 'd', 'e', 'f']
+        problem_matrix = [(0, 1, 0, 0, 0, 0), (1, 0, 0, 1, 0, 0), (0, 0, 1, 0, 0, 0), (0, 0, 0, 0, 1, 1)]
+        dl = DancingLinkConstructor(column_headers,problem_matrix)
+        dl.construct()
+
+    def test_construct(self):
+        self.assertEqual(Column(),self.dl.header)
+
+    def test_construct_columns(self):
+        self.assertEqual(self.dl.column_headers,['a', 'b', 'c', 'd', 'e', 'f'])
+        self.assertEqual(self.dl.header.right.name,'b')
+        self.assertEqual(self.dl.header.left.name,'f')
+        self.assertEqual(len(self.dl.column_rear_objects_dictionary),6)
+
+    def test_construct_column_rear_objects_dictionary(self):
+        self.assertEqual(len(self.dl.column_rear_objects_dictionary),6)
+
+        self.assertEqual(self.dl.column_rear_objects_dictionary.get("0").name,'a')
+        self.assertEqual(self.dl.column_rear_objects_dictionary.get('1').name,'b')
+        self.assertEqual(self.dl.column_rear_objects_dictionary.get('2').name,'c')
+        self.assertEqual(self.dl.column_rear_objects_dictionary.get('3').name,'d')
+        self.assertEqual(self.dl.column_rear_objects_dictionary.get('4').name,'e')
+        self.assertEqual(self.dl.column_rear_objects_dictionary.get('5').name,'f')
+
+    def test_construct_rows(self):
+        # TODO: Needs to be finished.
+        pass
