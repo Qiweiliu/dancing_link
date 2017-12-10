@@ -356,7 +356,10 @@ class DancingLinkConstructor:
             current_column = current_column.right
 
 
+""" Test DancingLinkSolver """
 class TestDancingLinkSolver(unittest.TestCase):
+
+    """Test DancingLinkSolver __init__ function"""
     def init(self):
         column_headers = []
         problem_matrix = []
@@ -364,22 +367,47 @@ class TestDancingLinkSolver(unittest.TestCase):
         self.dl.header = self.dl.construct()
         self.solver = DancingLinkSolver(self.dl.header)
         self.assertEqual(self.solver.header,self.dl.header)
+
+    """Assign different initial value"""
     def setUp(self):
-        # TODO: order coupling needed to fix
+        """
+                matrix=
+                (0, 1, 0, 0, 0, 0),
+                (1, 0, 0, 1, 0, 0),
+                (0, 0, 1, 0, 0, 0),
+                (0, 0, 0, 0, 1, 1),
+                (1, 1, 0, 0, 0, 0)]
+        """
         self.column_headers = ['a', 'b', 'c', 'd', 'e', 'f']
         self.problem_matrix = [(0, 1, 0, 0, 0, 0), (1, 0, 0, 1, 0, 0), (0, 0, 1, 0, 0, 0), (0, 0, 0, 0, 1, 1),(1, 1, 0, 0, 0, 0)]
         self.dl = DancingLinkConstructor(self.column_headers,self.problem_matrix)
         self.dl.header = self.dl.construct()
         self.solver = DancingLinkSolver(self.dl.header)
     def setUp1(self):
-        # TODO: order coupling needed to fix
+
+        """
+                matrix=
+                (1, 1, 0, 1, 0, 0, 1),
+                (1, 0, 1, 1, 0, 0, 0),
+                (0, 0, 1, 0, 0, 1, 0),
+                (0, 1, 0, 0, 1, 1, 0),
+                (0, 0, 0, 0, 1, 0, 1)]
+        """
         self.column_headers = ['a', 'b', 'c', 'd', 'e', 'f','g']
         self.problem_matrix = [(1, 1, 0, 1, 0, 0,1), (1, 0, 1, 1, 0, 0,0), (0, 0, 1, 0, 0, 1, 0), (0, 1, 0, 0, 1, 1,0),(0, 0, 0, 0, 1, 0,1)]
         self.dl = DancingLinkConstructor(self.column_headers,self.problem_matrix)
         self.dl.header = self.dl.construct()
         self.solver = DancingLinkSolver(self.dl.header)
     def setUp2(self):
-        # TODO: order coupling needed to fix
+
+        """
+                matrix=
+                (0, 0, 0, 0, 0, 0, 1),
+                (1, 0, 1, 1, 0, 0, 0),
+                (0, 0, 1, 0, 0, 1, 0),
+                (0, 1, 0, 0, 1, 1, 0),
+                (0, 0, 0, 0, 1, 0, 1)]
+        """
         self.column_headers = ['a', 'b', 'c', 'd', 'e', 'f','g']
         self.problem_matrix = [(0, 0, 0, 0, 0, 0, 1), (1, 0, 1, 1, 0, 0,0), (0, 0, 1, 0, 0, 1, 0), (0, 1, 0, 0, 1, 1,0),(0, 0, 0, 0, 1, 0,1)]
         self.dl = DancingLinkConstructor(self.column_headers,self.problem_matrix)
@@ -387,6 +415,8 @@ class TestDancingLinkSolver(unittest.TestCase):
         self.solver = DancingLinkSolver(self.dl.header)
 
     def test_search(self):
+
+        """Test Search function"""
 
         self.setUp()
         self.solver.search()
@@ -397,6 +427,7 @@ class TestDancingLinkSolver(unittest.TestCase):
         self.assertEqual(1,data_objects[1].row)
         self.assertEqual(0,data_objects[2].row)
         self.assertEqual(3,data_objects[3].row)
+        self.solver.print_solution()
 
 
         self.setUp1()
@@ -417,10 +448,14 @@ class TestDancingLinkSolver(unittest.TestCase):
         self.solver.print_solution()
         self.assertEqual(1,data_objects[0].row)
         self.assertEqual(3,data_objects[1].row)
-        self.assertEqual(0,data_objects[1].row)
+        self.assertEqual(0,data_objects[2].row)
 
 
     def test_row_up_Iterator(self):
+        """Test Iterator_up function
+        Make sure each column connect up to down,
+        and the head connect to tail
+        """
         Iterator = DancingLinkIterator()
         column_a = Column()
         column_b = Column()
@@ -444,7 +479,10 @@ class TestDancingLinkSolver(unittest.TestCase):
         self.assertEqual(up_columns[2].name,'d')
 
     def test_column_down_Iterator(self):
-        # TODO: need a more complete test
+        """Test Iterator_down function
+        Make sure each column connect up to down,
+        and the head connect to tail
+        """
         Iterator = DancingLinkIterator()
         column_a = Column()
         column_b = Column()
@@ -468,7 +506,10 @@ class TestDancingLinkSolver(unittest.TestCase):
         self.assertEqual(down_columns[2].name,'d')
 
     def test_row_left_Iterator(self):
-        # TODO: need a more complete test
+        """Test Iterator_left function
+        Make sure each column connect up to down,
+        and the head connect to tail
+        """
         Iterator = DancingLinkIterator()
         column_a = Column()
         column_b = Column()
@@ -493,7 +534,10 @@ class TestDancingLinkSolver(unittest.TestCase):
 
 
     def test_row_right_Iterator(self):
-        # TODO: need a more complete test
+        """Test Iterator_right function
+        Make sure each column connect up to down,
+        and the head connect to tail
+        """
         Iterator = DancingLinkIterator()
         column_a = Column()
         column_b = Column()
@@ -517,12 +561,12 @@ class TestDancingLinkSolver(unittest.TestCase):
         self.assertEqual(right_columns[2].name,'d')
 
     def test_choose_a_column(self):
-        # TODO: tests needed. The test will be changed by the different input so that a dynamic test needed
+        """Test choose a column function"""
         self.setUp()
         columns = []
         for column in self.solver.iterator.right(self.solver.header):
             columns.append(column)
-        self.assertEqual(self.solver.find_least_ones_column(),columns[0])
+        self.assertEqual(self.solver.find_least_ones_column(),columns[2])
 
         columns1 = []
         self.setUp1()
@@ -534,7 +578,7 @@ class TestDancingLinkSolver(unittest.TestCase):
         self.setUp2()
         for column in self.solver.iterator.right(self.solver.header):
             columns2.append(column)
-        self.assertEqual(self.solver.find_least_ones_column(),columns2[2])
+        self.assertEqual(self.solver.find_least_ones_column(),columns2[0])
 
     def test_find_least_ones_column(self):
         self.setUp()
@@ -544,12 +588,14 @@ class TestDancingLinkSolver(unittest.TestCase):
         self.assertEqual(self.solver.find_least_ones_column(),columns[0])
 
 class TestCollumn(unittest.TestCase):
+    """Test initial column function"""
     def test_init_(self):
         collumn = Column()
         self.assertEqual([collumn.left,collumn.right,collumn.up,collumn.down,
                           collumn.column,collumn.size,collumn.name],[None]*7)
 
 class TestData(unittest.TestCase):
+    """Test initial data function"""
     def test_init_(self):
         data = Data()
         self.assertEqual([data.left,data.down,data.left,data.right,data.column
@@ -560,17 +606,20 @@ class TestDancingLinkConstructor(unittest.TestCase):
     dl = None
 
     def init(self):
+        """Init function with empty data, test init constructor"""
         column_headers = []
         problem_matrix = []
         self.dl = DancingLinkConstructor(column_headers,problem_matrix)
 
     def setUp(self):
+        """Test construct function"""
         column_headers = ['a', 'b', 'c', 'd', 'e', 'f']
         problem_matrix = [(0, 1, 0, 0, 0, 0), (1, 0, 0, 1, 0, 0), (0, 0, 1, 0, 0, 0), (0, 0, 0, 0, 1, 1)]
         self.dl = DancingLinkConstructor(column_headers,problem_matrix)
         self.dl.header = self.dl.construct()
 
     def test_init_construct(self):
+        """The instance to test init construct function"""
         self.init()
         self.assertEqual(self.dl.header.left,None)
         self.assertEqual(self.dl.header.right,None)
@@ -581,6 +630,7 @@ class TestDancingLinkConstructor(unittest.TestCase):
         self.assertEqual(self.dl.column_tail_objects_dictionary,{})
 
     def test_construct_columns(self):
+        """Test init construct function with data"""
         self.setUp()
         self.assertEqual(self.dl.column_headers,['a', 'b', 'c', 'd', 'e', 'f'])
         self.assertEqual(self.dl.header.right.name,'a')
@@ -588,6 +638,7 @@ class TestDancingLinkConstructor(unittest.TestCase):
         self.assertEqual(len(self.dl.column_tail_objects_dictionary),6)
 
     def test_construct_column_tail_objects_dictionary(self):
+        """Test init column tail dictionary function"""
         self.assertEqual(len(self.dl.column_tail_objects_dictionary),6)
 
         self.assertEqual(self.dl.column_tail_objects_dictionary['0'].column.name,'a')
@@ -599,6 +650,7 @@ class TestDancingLinkConstructor(unittest.TestCase):
 
 
     def test_construct_rows(self):
+        """Test construct rows function"""
         self.setUp()
         self.assertEqual(self.dl.column_tail_objects_dictionary['0'].column.size,1)
         self.assertEqual(self.dl.column_tail_objects_dictionary['1'].column.size,1)
@@ -620,12 +672,14 @@ class TestDancingLinkConstructor(unittest.TestCase):
     #     self.assertEqual(danceLink.column_tail_objects_dictionary['5'].column.size,1)
 
     def test_connect_column_tail_head(self):
+        """Test connect column tail to head function"""
         self.setUp()
         for key, data_object in self.dl.column_tail_objects_dictionary.items():
             self.assertEqual(data_object.column,data_object.down)
             self.assertEqual(data_object,data_object.column.up)
 
     def test_connect_up_down(self):
+        """Test connect up to down function"""
         Data1 = Data()
         Data2 = Data()
         self.init()
@@ -634,6 +688,7 @@ class TestDancingLinkConstructor(unittest.TestCase):
         self.assertEqual(Data1,Data2.down)
 
     def test_connect_left_right(self):
+        """Test connect left to right function"""
         Data1 = Data()
         Data2 = Data()
         self.init()
