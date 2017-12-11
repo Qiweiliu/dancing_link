@@ -139,6 +139,14 @@ class DancingLinkSolver:
 
     def print_solution(self):
         """ print the solution"""
+        # TODO: check if condition passes
+        total_ones_number = 0
+        for item in self.iterator.right(self.header):
+            total_ones_number += 1
+
+        
+
+        print(total_ones_number)
         for key, data_object in self.solution_dictionary.items():
             print('In the level: ', key, 'the result is:', data_object.row)
 
@@ -175,6 +183,7 @@ class DancingLinkConstructor:
     """ Constructing the dancing link"""
 
     def __init__(self, column_headers, problem_matrix):
+        # TODO: Check if special case that number of ones equals the number of columns
         """ initialization
         :param column_headers: the headers of columns
         :param problem_matrix: the subset of column headers represented by a matrix with 1 and 0
@@ -201,7 +210,7 @@ class DancingLinkConstructor:
         # the reference to the previous column object
         previous_column_object = None
 
-        # the reference to the last column object
+        # # the reference to the last column object
         tail_column_object = None
 
         def connect_first_column_object_to_header():
@@ -255,6 +264,8 @@ class DancingLinkConstructor:
             data_object = Data()
 
             # track column size
+            # column_size: contain how many data object in each column
+            #: A List
             column_sizes[column_index] += 1
 
             # set row number
@@ -266,6 +277,7 @@ class DancingLinkConstructor:
             data_object.column = column_tail_object.column
 
             # create up-down connection to the last data object of the selected column
+            # Todo: up-down or down-up?
             self.connect_up_down(data_object, column_tail_object)
 
             # update the reference to last data object of current column
@@ -333,7 +345,6 @@ class DancingLinkConstructor:
         down_object.up = up_object
         up_object.down = down_object
 
-
     def connect_left_right(self, left_object, right_object):
         """create double connection between left and right
         :param: left_object: The left object
@@ -341,7 +352,6 @@ class DancingLinkConstructor:
         """
         left_object.right = right_object
         right_object.left = left_object
-
 
     def construct_column_tail_objects_dictionary(self):
         """Construct a dictionary that records the reference of the tail object of the corresponding column. """
@@ -353,43 +363,146 @@ class DancingLinkConstructor:
             current_column = current_column.right
 
 
+""" Test DancingLinkSolver """
+
+
 class TestDancingLinkSolver(unittest.TestCase):
+    """Test DancingLinkSolver __init__ function"""
+
+    def init(self):
+        column_headers = []
+        problem_matrix = []
+        self.dl = DancingLinkConstructor(column_headers, problem_matrix)
+        self.dl.header = self.dl.construct()
+        self.solver = DancingLinkSolver(self.dl.header)
+        self.assertEqual(self.solver.header, self.dl.header)
+
+    """Assign different initial value"""
+
     def setUp(self):
-        # TODO: order coupling needed to fix
-        self.column_names = ['a', 'b', 'c', 'd', 'e', 'f']
-        self.problem_matrix = [(0, 1, 0, 0, 0, 0), (1, 0, 0, 1, 0, 0), (0, 0, 1, 0, 0, 0), (0, 0, 0, 0, 1, 1)]
-        self.header = DancingLinkConstructor(self.column_names, self.problem_matrix).construct()
-        self.dancing_link_solver = DancingLinkSolver(self.header)
+        """
+                matrix=
+                (0, 1, 0, 0, 0, 0),
+                (1, 0, 0, 1, 0, 0),
+                (0, 0, 1, 0, 0, 0),
+                (0, 0, 0, 0, 1, 1),
+                (1, 1, 0, 0, 0, 0)]
+
+                The solution shall be 0, 1, 2, 3
+        """
+        self.column_headers = ['a', 'b', 'c', 'd', 'e', 'f']
+        self.problem_matrix = [(0, 1, 0, 0, 0, 0), (1, 0, 0, 1, 0, 0), (0, 0, 1, 0, 0, 0), (0, 0, 0, 0, 1, 1),
+                               (1, 1, 0, 0, 0, 0)]
+        self.dl = DancingLinkConstructor(self.column_headers, self.problem_matrix)
+        self.dl.header = self.dl.construct()
+        self.solver = DancingLinkSolver(self.dl.header)
+
+    def setUp1(self):
+
+        """
+                matrix=
+                (1, 1, 0, 1, 0, 0, 1),
+                (1, 0, 1, 1, 0, 0, 0),
+                (0, 0, 1, 0, 0, 1, 0),
+                (0, 1, 0, 0, 1, 1, 0),
+                (0, 0, 0, 0, 1, 0, 1)]
+                The solution doesn't exist. The program only print the search record.
+        """
+        self.column_headers = ['a', 'b', 'c', 'd', 'e', 'f', 'g']
+        self.problem_matrix = [(1, 1, 0, 1, 0, 0, 1), (1, 0, 1, 1, 0, 0, 0), (0, 0, 1, 0, 0, 1, 0),
+                               (0, 1, 0, 0, 1, 1, 0), (0, 0, 0, 0, 1, 0, 1)]
+        self.dl = DancingLinkConstructor(self.column_headers, self.problem_matrix)
+        self.dl.header = self.dl.construct()
+        self.solver = DancingLinkSolver(self.dl.header)
+
+    def setUp2(self):
+
+        """
+                matrix=
+                (0, 0, 0, 0, 0, 0, 1),
+                (1, 0, 1, 1, 0, 0, 0),
+                (0, 0, 1, 0, 0, 1, 0),
+                (0, 1, 0, 0, 1, 1, 0),
+                (0, 0, 0, 0, 1, 0, 1)]
+                The solution shall be 0, 1, 3
+        """
+        self.column_headers = ['a', 'b', 'c', 'd', 'e', 'f', 'g']
+        self.problem_matrix = [(0, 0, 0, 0, 0, 0, 1), (1, 0, 1, 1, 0, 0, 0), (0, 0, 1, 0, 0, 1, 0),
+                               (0, 1, 0, 0, 1, 1, 0), (0, 0, 0, 0, 1, 0, 1)]
+        self.dl = DancingLinkConstructor(self.column_headers, self.problem_matrix)
+        self.dl.header = self.dl.construct()
+        self.solver = DancingLinkSolver(self.dl.header)
 
     def test_search(self):
-        self.dancing_link_solver.search()
-        self.dancing_link_solver.print_solution()
 
-    def test_row_right_generator(self):
-        # TODO: need a more complete test
+        """Test Search function"""
+        print('data set one -- solution exists:')
+        self.setUp()
+        self.solver.search()
+        data_objects = []
+        for key, data_object in self.solver.solution_dictionary.items():
+            data_objects.append(data_object)
+        self.assertEqual(2, data_objects[0].row)
+        self.assertEqual(1, data_objects[1].row)
+        self.assertEqual(0, data_objects[2].row)
+        self.assertEqual(3, data_objects[3].row)
+        self.solver.print_solution()
+
+        print('data set two -- solution doesn\'t exists:')
+        self.setUp1()
+        self.solver.search()
+        data_objects = []
+        for key, data_object in self.solver.solution_dictionary.items():
+            data_objects.append(data_object)
+        self.assertEqual(1, data_objects[0].row)
+        self.assertEqual(3, data_objects[1].row)
+        self.solver.print_solution()
+
+        print('data set three -- solution exists:')
+        self.setUp2()
+        self.solver.search()
+        data_objects = []
+        for key, data_object in self.solver.solution_dictionary.items():
+            data_objects.append(data_object)
+
+        self.solver.print_solution()
+        self.assertEqual(1, data_objects[0].row)
+        self.assertEqual(3, data_objects[1].row)
+        self.assertEqual(0, data_objects[2].row)
+
+    def test_row_up_Iterator(self):
+        """Test Iterator_up function
+        Make sure each column connect up to down,
+        and the head connect to tail
+        """
+        Iterator = DancingLinkIterator()
         column_a = Column()
         column_b = Column()
         column_c = Column()
         column_d = Column()
 
-        column_a.right = column_b
-        column_b.right = column_c
-        column_c.right = column_d
+        column_a.up = column_b
+        column_b.up = column_c
+        column_c.up = column_d
+        column_d.up = column_a
         column_a.name = 'a'
         column_b.name = 'b'
         column_c.name = 'c'
         column_d.name = 'd'
 
-        for i in self.dancing_link.row_right_generator(column_a):
-            print(i.name)
+        up_columns = []
+        for i in Iterator.up(column_a):
+            up_columns.append(i)
+        self.assertEqual(up_columns[0].name, 'b')
+        self.assertEqual(up_columns[1].name, 'c')
+        self.assertEqual(up_columns[2].name, 'd')
 
-    def test_choose_a_column(self):
-        # TODO: tests needed. The test will be changed by the different input so that a dynamic test needed
-        print(self.dancing_link.choose_column().name)
-
-    def test_column_down_generator(self):
-        # TODO: need a more complete test
-        generator = DancingLinkIterator()
+    def test_column_down_Iterator(self):
+        """Test Iterator_down function
+        Make sure each column connect up to down,
+        and the head connect to tail
+        """
+        Iterator = DancingLinkIterator()
         column_a = Column()
         column_b = Column()
         column_c = Column()
@@ -404,52 +517,203 @@ class TestDancingLinkSolver(unittest.TestCase):
         column_c.name = 'c'
         column_d.name = 'd'
 
-        for i in generator.down(column_a):
-            print(i.name)
+        down_columns = []
+        for i in Iterator.down(column_a):
+            down_columns.append(i)
+        self.assertEqual(down_columns[0].name, 'b')
+        self.assertEqual(down_columns[1].name, 'c')
+        self.assertEqual(down_columns[2].name, 'd')
+
+    def test_row_left_Iterator(self):
+        """Test Iterator_left function
+        Make sure each column connect up to down,
+        and the head connect to tail
+        """
+        Iterator = DancingLinkIterator()
+        column_a = Column()
+        column_b = Column()
+        column_c = Column()
+        column_d = Column()
+
+        column_a.left = column_b
+        column_b.left = column_c
+        column_c.left = column_d
+        column_d.left = column_a
+        column_a.name = 'a'
+        column_b.name = 'b'
+        column_c.name = 'c'
+        column_d.name = 'd'
+
+        left_columns = []
+        for i in Iterator.left(column_a):
+            left_columns.append(i)
+        self.assertEqual(left_columns[0].name, 'b')
+        self.assertEqual(left_columns[1].name, 'c')
+        self.assertEqual(left_columns[2].name, 'd')
+
+    def test_row_right_Iterator(self):
+        """Test Iterator_right function
+        Make sure each column connect up to down,
+        and the head connect to tail
+        """
+        Iterator = DancingLinkIterator()
+        column_a = Column()
+        column_b = Column()
+        column_c = Column()
+        column_d = Column()
+
+        column_a.right = column_b
+        column_b.right = column_c
+        column_c.right = column_d
+        column_d.right = column_a
+        column_a.name = 'a'
+        column_b.name = 'b'
+        column_c.name = 'c'
+        column_d.name = 'd'
+
+        right_columns = []
+        for i in Iterator.right(column_a):
+            right_columns.append(i)
+        self.assertEqual(right_columns[0].name, 'b')
+        self.assertEqual(right_columns[1].name, 'c')
+        self.assertEqual(right_columns[2].name, 'd')
+
+    def test_choose_a_column(self):
+        """Test choose a column function"""
+        self.setUp()
+        columns = []
+        for column in self.solver.iterator.right(self.solver.header):
+            columns.append(column)
+        self.assertEqual(self.solver.find_least_ones_column(), columns[2])
+
+        columns1 = []
+        self.setUp1()
+        for column in self.solver.iterator.right(self.solver.header):
+            columns1.append(column)
+        self.assertEqual(self.solver.find_least_ones_column(), columns1[0])
+
+        columns2 = []
+        self.setUp2()
+        for column in self.solver.iterator.right(self.solver.header):
+            columns2.append(column)
+        self.assertEqual(self.solver.find_least_ones_column(), columns2[0])
+
+    def test_find_least_ones_column(self):
+        self.setUp()
+        columns = []
+        for column in self.solver.iterator.right(self.solver.header):
+            columns.append(column)
+        self.assertEqual(self.solver.find_least_ones_column(), columns[2])
 
 
-class TestCollumn(unittest.TestCase):
+class TestColumn(unittest.TestCase):
+    """Test initial column function"""
+
     def test_init_(self):
         collumn = Column()
-        self.assertEqual([collumn.left,collumn.right,collumn.up,collumn.down,
-                          collumn.column,collumn.size,collumn.name],[None]*7)
+        self.assertEqual([collumn.left, collumn.right, collumn.up, collumn.down,
+                          collumn.column, collumn.size, collumn.name], [None] * 7)
+
 
 class TestData(unittest.TestCase):
+    """Test initial data function"""
+
     def test_init_(self):
         data = Data()
-        self.assertEqual([data.left,data.down,data.left,data.right,data.column
-                          ,data.row],[None]*6)
+        self.assertEqual([data.left, data.down, data.left, data.right, data.column
+                             , data.row], [None] * 6)
+
 
 class TestDancingLinkConstructor(unittest.TestCase):
+    dl = None
+
+    def init(self):
+        """Init function with empty data, test init constructor"""
+        column_headers = []
+        problem_matrix = []
+        self.dl = DancingLinkConstructor(column_headers, problem_matrix)
 
     def setUp(self):
-        # TODO: more sets of data including special cases
+        """Test construct function"""
         column_headers = ['a', 'b', 'c', 'd', 'e', 'f']
         problem_matrix = [(0, 1, 0, 0, 0, 0), (1, 0, 0, 1, 0, 0), (0, 0, 1, 0, 0, 0), (0, 0, 0, 0, 1, 1)]
-        self.dl = DancingLinkConstructor(column_headers,problem_matrix)
-        self.dl.construct()
+        self.dl = DancingLinkConstructor(column_headers, problem_matrix)
+        self.dl.header = self.dl.construct()
 
-    def test_construct(self):
-        #TODO: problem: the new created columns is not the same as that in setUp()
-        self.assertEqual(Column(),self.dl.header)
+    def test_init_construct(self):
+        """The instance to test init construct function"""
+        self.init()
+        self.assertEqual(self.dl.header.left, None)
+        self.assertEqual(self.dl.header.right, None)
+        self.assertEqual(self.dl.header.up, None)
+        self.assertEqual(self.dl.header.down, None)
+        self.assertEqual(self.dl.column_headers, [])
+        self.assertEqual(self.dl.problem_matrix, [])
+        self.assertEqual(self.dl.column_tail_objects_dictionary, {})
 
     def test_construct_columns(self):
-        self.assertEqual(self.dl.column_headers,['a', 'b', 'c', 'd', 'e', 'f'])
-        self.assertEqual(self.dl.header.right.name,'b')
-        self.assertEqual(self.dl.header.left.name,'f')
-        self.assertEqual(len(self.dl.column_tail_objects_dictionary),6)
+        """Test init construct function with data"""
+        self.setUp()
+        self.assertEqual(self.dl.column_headers, ['a', 'b', 'c', 'd', 'e', 'f'])
+        self.assertEqual(self.dl.header.right.name, 'a')
+        self.assertEqual(self.dl.header.left.name, 'f')
+        self.assertEqual(len(self.dl.column_tail_objects_dictionary), 6)
 
-    def test_construct_column_rear_objects_dictionary(self):
-        # TODO: needs to be interpreted and make sense
-        self.assertEqual(len(self.dl.column_tail_objects_dictionary),6)
+    def test_construct_column_tail_objects_dictionary(self):
+        """Test init column tail dictionary function"""
+        self.assertEqual(len(self.dl.column_tail_objects_dictionary), 6)
 
-        self.assertEqual(self.dl.column_tail_objects_dictionary.get("0").name,'a')
-        self.assertEqual(self.dl.column_tail_objects_dictionary.get('1').name,'b')
-        self.assertEqual(self.dl.column_tail_objects_dictionary.get('2').name,'c')
-        self.assertEqual(self.dl.column_tail_objects_dictionary.get('3').name,'d')
-        self.assertEqual(self.dl.column_tail_objects_dictionary.get('4').name,'e')
-        self.assertEqual(self.dl.column_tail_objects_dictionary.get('5').name,'f')
+        self.assertEqual(self.dl.column_tail_objects_dictionary['0'].column.name, 'a')
+        self.assertEqual(self.dl.column_tail_objects_dictionary['1'].column.name, 'b')
+        self.assertEqual(self.dl.column_tail_objects_dictionary['2'].column.name, 'c')
+        self.assertEqual(self.dl.column_tail_objects_dictionary['3'].column.name, 'd')
+        self.assertEqual(self.dl.column_tail_objects_dictionary['4'].column.name, 'e')
+        self.assertEqual(self.dl.column_tail_objects_dictionary['5'].column.name, 'f')
 
     def test_construct_rows(self):
-        # TODO: Needs to be finished.
-        pass
+        """Test construct rows function"""
+        self.setUp()
+        self.assertEqual(self.dl.column_tail_objects_dictionary['0'].column.size, 1)
+        self.assertEqual(self.dl.column_tail_objects_dictionary['1'].column.size, 1)
+        self.assertEqual(self.dl.column_tail_objects_dictionary['2'].column.size, 1)
+        self.assertEqual(self.dl.column_tail_objects_dictionary['3'].column.size, 1)
+        self.assertEqual(self.dl.column_tail_objects_dictionary['4'].column.size, 1)
+        self.assertEqual(self.dl.column_tail_objects_dictionary['5'].column.size, 1)
+
+    def test_update_column_sizes(self):
+        column_headers = ['a', 'b', 'c', 'd', 'e', 'f']
+        problem_matrix = [(0, 1, 0, 0, 0, 0), (1, 0, 0, 1, 0, 0), (0, 0, 1, 0, 0, 0), (0, 0, 0, 0, 1, 1)]
+        danceLink = DancingLinkConstructor(column_headers, problem_matrix)
+        danceLink.construct()
+        danceLink.update_column_sizes([1, 1, 1, 1, 1, 1])
+        self.assertEqual(danceLink.column_tail_objects_dictionary['0'].column.size, 1)
+        self.assertEqual(danceLink.column_tail_objects_dictionary['1'].column.size, 1)
+        self.assertEqual(danceLink.column_tail_objects_dictionary['2'].column.size, 1)
+        self.assertEqual(danceLink.column_tail_objects_dictionary['3'].column.size, 1)
+        self.assertEqual(danceLink.column_tail_objects_dictionary['4'].column.size, 1)
+        self.assertEqual(danceLink.column_tail_objects_dictionary['5'].column.size, 1)
+
+    def test_connect_column_tail_head(self):
+        """Test connect column tail to head function"""
+        self.setUp()
+        for key, data_object in self.dl.column_tail_objects_dictionary.items():
+            self.assertEqual(data_object.column, data_object.down)
+            self.assertEqual(data_object, data_object.column.up)
+
+    def test_connect_up_down(self):
+        """Test connect up to down function"""
+        Data1 = Data()
+        Data2 = Data()
+        self.init()
+        self.dl.connect_up_down(Data1, Data2)
+        self.assertEqual(Data2, Data1.up)
+        self.assertEqual(Data1, Data2.down)
+
+    def test_connect_left_right(self):
+        """Test connect left to right function"""
+        Data1 = Data()
+        Data2 = Data()
+        self.init()
+        self.dl.connect_left_right(Data1, Data2)
+        self.assertEqual(Data2, Data1.right)
+        self.assertEqual(Data1, Data2.left)
