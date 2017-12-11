@@ -201,7 +201,7 @@ class DancingLinkConstructor:
         # the reference to the previous column object
         previous_column_object = None
 
-        # # the reference to the last column object
+        # the reference to the last column object
         tail_column_object = None
 
         def connect_first_column_object_to_header():
@@ -421,32 +421,34 @@ class TestData(unittest.TestCase):
                           ,data.row],[None]*6)
 
 class TestDancingLinkConstructor(unittest.TestCase):
-    dl = None
 
     def setUp(self):
+        # TODO: more sets of data including special cases
         column_headers = ['a', 'b', 'c', 'd', 'e', 'f']
         problem_matrix = [(0, 1, 0, 0, 0, 0), (1, 0, 0, 1, 0, 0), (0, 0, 1, 0, 0, 0), (0, 0, 0, 0, 1, 1)]
-        dl = DancingLinkConstructor(column_headers,problem_matrix)
-        dl.construct()
+        self.dl = DancingLinkConstructor(column_headers,problem_matrix)
+        self.dl.construct()
 
     def test_construct(self):
+        #TODO: problem: the new created columns is not the same as that in setUp()
         self.assertEqual(Column(),self.dl.header)
 
     def test_construct_columns(self):
         self.assertEqual(self.dl.column_headers,['a', 'b', 'c', 'd', 'e', 'f'])
         self.assertEqual(self.dl.header.right.name,'b')
         self.assertEqual(self.dl.header.left.name,'f')
-        self.assertEqual(len(self.dl.column_rear_objects_dictionary),6)
+        self.assertEqual(len(self.dl.column_tail_objects_dictionary),6)
 
     def test_construct_column_rear_objects_dictionary(self):
-        self.assertEqual(len(self.dl.column_rear_objects_dictionary),6)
+        # TODO: needs to be interpreted and make sense
+        self.assertEqual(len(self.dl.column_tail_objects_dictionary),6)
 
-        self.assertEqual(self.dl.column_rear_objects_dictionary.get("0").name,'a')
-        self.assertEqual(self.dl.column_rear_objects_dictionary.get('1').name,'b')
-        self.assertEqual(self.dl.column_rear_objects_dictionary.get('2').name,'c')
-        self.assertEqual(self.dl.column_rear_objects_dictionary.get('3').name,'d')
-        self.assertEqual(self.dl.column_rear_objects_dictionary.get('4').name,'e')
-        self.assertEqual(self.dl.column_rear_objects_dictionary.get('5').name,'f')
+        self.assertEqual(self.dl.column_tail_objects_dictionary.get("0").name,'a')
+        self.assertEqual(self.dl.column_tail_objects_dictionary.get('1').name,'b')
+        self.assertEqual(self.dl.column_tail_objects_dictionary.get('2').name,'c')
+        self.assertEqual(self.dl.column_tail_objects_dictionary.get('3').name,'d')
+        self.assertEqual(self.dl.column_tail_objects_dictionary.get('4').name,'e')
+        self.assertEqual(self.dl.column_tail_objects_dictionary.get('5').name,'f')
 
     def test_construct_rows(self):
         # TODO: Needs to be finished.
