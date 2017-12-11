@@ -476,6 +476,7 @@ class TestDancingLinkSolver(unittest.TestCase):
             print('Solution exists')
         else:
             print('No solution')
+        self.assertEqual(self.solver.get_solution(), [2, 1, 0,3])
 
     def test_search_set_up1(self):
         print('---------------------')
@@ -491,6 +492,8 @@ class TestDancingLinkSolver(unittest.TestCase):
             print('Solution exists')
         else:
             print('No solution')
+
+        self.assertEqual(self.solver.get_solution(), [1, 3])
 
     def test_search_set_up2(self):
         print('---------------------')
@@ -508,6 +511,8 @@ class TestDancingLinkSolver(unittest.TestCase):
             print('Solution exists')
         else:
             print('No solution')
+
+        self.assertEqual(self.solver.get_solution(),[1, 3, 0])
 
     def test_row_up_iterator(self):
         """
@@ -778,10 +783,10 @@ class TestVerifier(unittest.TestCase):
 
     def setUp(self):
         self.problem_matrix_of_wrong_subset = [(0, 0, 0, 0, 0, 0, 1), (1, 1, 1, 1, 1, 1, 1), (0, 0, 1, 0, 0, 1, 0),
-                               (0, 1, 0, 0, 1, 1, 0), (0, 0, 0, 0, 1, 0, 1)]
+                                               (0, 1, 0, 0, 1, 1, 0), (0, 0, 0, 0, 1, 0, 1)]
         self.problem_matrix_of_no_solution = [(0, 0, 0, 0, 0, 0, 1), (1, 0, 1, 1, 0, 0, 0)]
         self.problem_matrix_of_existing_solution = [(0, 1, 0, 0, 0, 0), (1, 0, 0, 1, 0, 0), (0, 0, 1, 0, 0, 0), (0, 0, 0, 0, 1, 1),
-                               (1, 1, 0, 0, 0, 0)]
+                                                    (1, 1, 0, 0, 0, 0)]
         self.verifier = Verifier()
 
     def test_verify_full_ones_row(self):
