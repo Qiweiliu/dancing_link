@@ -1,6 +1,5 @@
 import unittest
 
-
 class Column:
     """The column object of dancing link"""
 
@@ -25,15 +24,46 @@ class Data:
         self.column = None
         self.row = None
 
+class Verifier:
+    """A verifier to verify existence of solution and correctness of the problem matrix"""
+
+    def verify_if_proper_subset(self, problem_matrix):
+        """
+        verify if the problem matrix includes proper subsets
+        :param problem_matrix: the problem matrix to be solved
+        """
+        row_size = len(problem_matrix[0])
+        for row in problem_matrix:
+            if row.count(1) is row_size:
+                return False
+        return True
+    def verify_existence(self, solution_set, problem_matrix):
+        """
+        Verify if the solution exists
+        :param solution_set: the row indices of subsets of the solution
+        :param problem_matrix: the problem matrix to be solved
+        """
+        subset = []
+        total_ones = 0
+        for row_number in solution_set:
+            subset.append(problem_matrix[row_number])
+        for row in subset:
+            total_ones += row.count(1)
+        if total_ones < len(problem_matrix[0]):
+            return False
+        else:
+            return True
 
 class DancingLinkSolver:
     """A implementation of algorithm X using dancing link as the data structure"""
 
     def __init__(self, header):
-        """ initialize the dancing link solver with the header of dancing link
+        """
+        initialize the dancing link solver with the header of dancing link
         :param header: the header of the dancing link
         :type header: Column
         """
+
         self.header = header
 
         # initialize a iterator for transversing dancing link in four directions
@@ -43,7 +73,8 @@ class DancingLinkSolver:
         self.solution_dictionary = {}
 
     def search(self, k=0):
-        """A recursive procedure to search the solution that is invoked with k = 0
+        """
+        A recursive procedure to search the solution that is invoked with k = 0
         :param k: the index of backtracking level
         """
 
@@ -75,14 +106,16 @@ class DancingLinkSolver:
         return
 
     def choose_column(self):
-        """minimize the branching factor by choosing the column with the least size
+        """
+        minimize the branching factor by choosing the column with the least size
 
         :return the reference of chosen column object
         """
         return self.find_least_ones_column()
 
     def find_least_ones_column(self):
-        """ Find the column with the least size
+        """
+        Find the column with the least size
         :return selected_column: the reference of the selected column
         :rtype selected_column: Column
         """
@@ -96,21 +129,24 @@ class DancingLinkSolver:
         return selected_column
 
     def cover_column(self, selected_column):
-        """ cover a column
+        """
+        cover a column
         :param selected_column: the reference of the selected column
         """
         self.disconnect_column_object(selected_column)
         self.disconnect_data_object(selected_column)
 
     def disconnect_column_object(self, selected_column):
-        """ cover the selected column object from the linked list of columns
+        """
+        cover the selected column object from the linked list of columns
         :param selected_column: the reference of the selected column
         """
         selected_column.right.left = selected_column.left
         selected_column.left.right = selected_column.right
 
     def disconnect_data_object(self, selected_column):
-        """ cover the data objects of selected column
+        """
+        cover the data objects of selected column
         :param selected_column: the reference of the selected column
         """
         for i in self.iterator.down(selected_column):
@@ -139,17 +175,14 @@ class DancingLinkSolver:
 
     def print_solution(self):
         """ print the solution"""
-        # TODO: check if condition passes
-        total_ones_number = 0
-        for item in self.iterator.right(self.header):
-            total_ones_number += 1
-
-        
-
-        print(total_ones_number)
         for key, data_object in self.solution_dictionary.items():
             print('In the level: ', key, 'the result is:', data_object.row)
 
+    def get_solution(self):
+        solution_list = []
+        for key, data_object in self.solution_dictionary.items():
+            solution_list.append(data_object.row)
+        return solution_list
 
 class DancingLinkIterator:
     """ A collection of iterator for dancing link"""
@@ -183,11 +216,11 @@ class DancingLinkConstructor:
     """ Constructing the dancing link"""
 
     def __init__(self, column_headers, problem_matrix):
-        # TODO: Check if special case that number of ones equals the number of columns
         """ initialization
         :param column_headers: the headers of columns
         :param problem_matrix: the subset of column headers represented by a matrix with 1 and 0
         """
+        self.verifier = Verifier()
         self.column_headers = column_headers
         self.problem_matrix = problem_matrix
         self.header = Column()
@@ -196,9 +229,13 @@ class DancingLinkConstructor:
         self.column_tail_objects_dictionary = {}
 
     def construct(self):
-        """ Construct a dancing link
+        """
+        Construct a dancing link
         :return the header column object of the dancing link
         """
+        # raise exception when input problem matrix include non-proper subset
+        if self.verifier.verify_if_proper_subset(self.problem_matrix) is not True:
+            raise Exception('NOT A PROPER SUBSET')
         self.construct_columns()
         self.construct_column_tail_objects_dictionary()
         self.construct_rows()
@@ -277,7 +314,6 @@ class DancingLinkConstructor:
             data_object.column = column_tail_object.column
 
             # create up-down connection to the last data object of the selected column
-            # Todo: up-down or down-up?
             self.connect_up_down(data_object, column_tail_object)
 
             # update the reference to last data object of current column
@@ -325,7 +361,8 @@ class DancingLinkConstructor:
         self.connect_column_tail_head()
 
     def update_column_sizes(self, column_sizes):
-        """ updates column sizes
+        """
+        updates column sizes
         :param column_sizes: List contains the sizes of columns
         """
         for index, size in enumerate(column_sizes):
@@ -338,7 +375,8 @@ class DancingLinkConstructor:
             data_object.column.up = data_object
 
     def connect_up_down(self, down_object, up_object):
-        """create double connection between up and down
+        """
+        create double connection between up and down
         :param down_object: The down object
         :param up_object: The up object
         """
@@ -346,7 +384,8 @@ class DancingLinkConstructor:
         up_object.down = down_object
 
     def connect_left_right(self, left_object, right_object):
-        """create double connection between left and right
+        """
+        create double connection between left and right
         :param: left_object: The left object
         :param: right_object: The right object
         """
@@ -363,21 +402,8 @@ class DancingLinkConstructor:
             current_column = current_column.right
 
 
-""" Test DancingLinkSolver """
-
-
 class TestDancingLinkSolver(unittest.TestCase):
-    """Test DancingLinkSolver __init__ function"""
-
-    def init(self):
-        column_headers = []
-        problem_matrix = []
-        self.dl = DancingLinkConstructor(column_headers, problem_matrix)
-        self.dl.header = self.dl.construct()
-        self.solver = DancingLinkSolver(self.dl.header)
-        self.assertEqual(self.solver.header, self.dl.header)
-
-    """Assign different initial value"""
+    """Test dancing link solver"""
 
     def setUp(self):
         """
@@ -396,6 +422,7 @@ class TestDancingLinkSolver(unittest.TestCase):
         self.dl = DancingLinkConstructor(self.column_headers, self.problem_matrix)
         self.dl.header = self.dl.construct()
         self.solver = DancingLinkSolver(self.dl.header)
+        self.verifier = Verifier()
 
     def setUp1(self):
 
@@ -433,10 +460,8 @@ class TestDancingLinkSolver(unittest.TestCase):
         self.dl.header = self.dl.construct()
         self.solver = DancingLinkSolver(self.dl.header)
 
-    def test_search(self):
-
-        """Test Search function"""
-        print('data set one -- solution exists:')
+    def test_search_set_up(self):
+        print('---------------------')
         self.setUp()
         self.solver.search()
         data_objects = []
@@ -447,8 +472,13 @@ class TestDancingLinkSolver(unittest.TestCase):
         self.assertEqual(0, data_objects[2].row)
         self.assertEqual(3, data_objects[3].row)
         self.solver.print_solution()
+        if self.verifier.verify_existence(self.solver.get_solution(),self.problem_matrix):
+            print('Solution exists')
+        else:
+            print('No solution')
 
-        print('data set two -- solution doesn\'t exists:')
+    def test_search_set_up1(self):
+        print('---------------------')
         self.setUp1()
         self.solver.search()
         data_objects = []
@@ -457,8 +487,13 @@ class TestDancingLinkSolver(unittest.TestCase):
         self.assertEqual(1, data_objects[0].row)
         self.assertEqual(3, data_objects[1].row)
         self.solver.print_solution()
+        if self.verifier.verify_existence(self.solver.get_solution(), self.problem_matrix):
+            print('Solution exists')
+        else:
+            print('No solution')
 
-        print('data set three -- solution exists:')
+    def test_search_set_up2(self):
+        print('---------------------')
         self.setUp2()
         self.solver.search()
         data_objects = []
@@ -469,9 +504,14 @@ class TestDancingLinkSolver(unittest.TestCase):
         self.assertEqual(1, data_objects[0].row)
         self.assertEqual(3, data_objects[1].row)
         self.assertEqual(0, data_objects[2].row)
+        if self.verifier.verify_existence(self.solver.get_solution(), self.problem_matrix):
+            print('Solution exists')
+        else:
+            print('No solution')
 
-    def test_row_up_Iterator(self):
-        """Test Iterator_up function
+    def test_row_up_iterator(self):
+        """
+        Test Iterator_up function
         Make sure each column connect up to down,
         and the head connect to tail
         """
@@ -498,7 +538,8 @@ class TestDancingLinkSolver(unittest.TestCase):
         self.assertEqual(up_columns[2].name, 'd')
 
     def test_column_down_Iterator(self):
-        """Test Iterator_down function
+        """
+        Test Iterator_down function
         Make sure each column connect up to down,
         and the head connect to tail
         """
@@ -525,7 +566,8 @@ class TestDancingLinkSolver(unittest.TestCase):
         self.assertEqual(down_columns[2].name, 'd')
 
     def test_row_left_Iterator(self):
-        """Test Iterator_left function
+        """
+        Test Iterator_left function
         Make sure each column connect up to down,
         and the head connect to tail
         """
@@ -552,7 +594,8 @@ class TestDancingLinkSolver(unittest.TestCase):
         self.assertEqual(left_columns[2].name, 'd')
 
     def test_row_right_Iterator(self):
-        """Test Iterator_right function
+        """
+        Test Iterator_right function
         Make sure each column connect up to down,
         and the head connect to tail
         """
@@ -579,7 +622,7 @@ class TestDancingLinkSolver(unittest.TestCase):
         self.assertEqual(right_columns[2].name, 'd')
 
     def test_choose_a_column(self):
-        """Test choose a column function"""
+        """Test choose_a_column function"""
         self.setUp()
         columns = []
         for column in self.solver.iterator.right(self.solver.header):
@@ -639,6 +682,18 @@ class TestDancingLinkConstructor(unittest.TestCase):
         problem_matrix = [(0, 1, 0, 0, 0, 0), (1, 0, 0, 1, 0, 0), (0, 0, 1, 0, 0, 0), (0, 0, 0, 0, 1, 1)]
         self.dl = DancingLinkConstructor(column_headers, problem_matrix)
         self.dl.header = self.dl.construct()
+
+    def test_construct_exception(self):
+        """Test exception when problem matrix including non-proper subset"""
+        column_headers = ['a', 'b', 'c', 'd', 'e', 'f']
+        problem_matrix = [(1, 1, 1, 1, 1, 1)]
+        self.dl = DancingLinkConstructor(column_headers, problem_matrix)
+        self.assertRaises(Exception, )
+        with self.assertRaises(Exception) as ex:
+            self.dl.construct()
+        the_exception = ex.exception
+        print(the_exception)
+        self.assertEqual(str(the_exception),'NOT A PROPER SUBSET')
 
     def test_init_construct(self):
         """The instance to test init construct function"""
@@ -717,3 +772,23 @@ class TestDancingLinkConstructor(unittest.TestCase):
         self.dl.connect_left_right(Data1, Data2)
         self.assertEqual(Data2, Data1.right)
         self.assertEqual(Data1, Data2.left)
+
+
+class TestVerifier(unittest.TestCase):
+
+    def setUp(self):
+        self.problem_matrix_of_wrong_subset = [(0, 0, 0, 0, 0, 0, 1), (1, 1, 1, 1, 1, 1, 1), (0, 0, 1, 0, 0, 1, 0),
+                               (0, 1, 0, 0, 1, 1, 0), (0, 0, 0, 0, 1, 0, 1)]
+        self.problem_matrix_of_no_solution = [(0, 0, 0, 0, 0, 0, 1), (1, 0, 1, 1, 0, 0, 0)]
+        self.problem_matrix_of_existing_solution = [(0, 1, 0, 0, 0, 0), (1, 0, 0, 1, 0, 0), (0, 0, 1, 0, 0, 0), (0, 0, 0, 0, 1, 1),
+                               (1, 1, 0, 0, 0, 0)]
+        self.verifier = Verifier()
+
+    def test_verify_full_ones_row(self):
+        self.assertFalse(self.verifier.verify_if_proper_subset(self.problem_matrix_of_wrong_subset))
+
+    def test_verify_solution_existence_false(self):
+        self.assertFalse(self.verifier.verify_existence( [0,1,2],self.problem_matrix_of_existing_solution))
+
+    def test_verify_solution_existence_true(self):
+        self.assertTrue(self.verifier.verify_existence([0, 1, 2,3], self.problem_matrix_of_existing_solution))
